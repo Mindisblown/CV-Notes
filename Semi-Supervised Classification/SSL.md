@@ -20,9 +20,9 @@ $$
 
 ​		相对熵用于衡量两个概率分布的差异，其定义为
 $$
-D_{KL}(p||q)=\sum_{i=1}^{n}p(x_{i}log\dfrac{p(x_{i})}{q(x_{i})})
+D_{KL}(p||q)=\sum_{i=1}^{n}p(x_{i})log\dfrac{p(x_{i})}{q(x_{i})}
 $$
-​		由公式可知，两个分布越近时，KL散度趋向于0。Jensen不等式证明KL散度是大于0的非负数
+​		由公式可知，两个分布越近时，KL散度趋向于0。Jensen不等式证明KL散度是大于0的非负数。P(x)为真实分布，Q(x)为近似分布
 
 **交叉熵-CrossEntropy**
 
@@ -35,10 +35,33 @@ $$
 H(p,q)=-\sum_{i=1}^{n}p(x_{i})log(q(x_{i}))
 $$
 ​		在网络训练时，通常度量GT Label与Predict之间的差距，而GT Label的熵必定是恒定的，因此只需关注后半部分即可
-
+$$
+D(p||q)=H(p,q)-H(p)
+$$
 **半监督主流思想**
 
 ​		Consistency-Based：一致性原则，输入x与经过噪音扰动的x+noise输入同一个网络，它们的输出应该是Invariant
 
 1.Unsupervised Data Augmentation for Consistency Training-UDA
+
+​		使用高质量的数据增强来替代噪音嵌入的方式，通过这种方式使模型对噪音不敏感，那么模型不会过度拟合部分噪音数据，使得模型隐藏空间更加平滑，并且一致性Loss的约束下，也会将标签信息从已标注数据传播到未标记数据
+
+~~~python
+"""
+Part A:
+label data ---> x ---> model ---> x_output
+		|-----> GT Label y 
+
+supervised loss = CE_Loss(x_output,y) 
+
+Part B:
+ublabel data ---> x ---> model ---> x_output
+	|---> augment ---> x_aug ---> model ---> x_aug_output
+    
+unsupervised loss = KL(x_output, x_aug_output)
+利用KL散度求原x和经过数据增强后x_aug的分布，根据Consistency原则可知两分布应一致
+
+Final Loss = supervised loss + unsupervised loss
+"""
+~~~
 

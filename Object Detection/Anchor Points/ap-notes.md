@@ -15,3 +15,17 @@ $$
 ​		centerness越接近于1，表明越靠近GT box中心。
 
 ​		训练时，centerness采用BCELoss，在实际推理时，centerness的值乘上类别分数做为nms的排序参考。
+
+# CenterNet-Object as points
+
+​		无需nms，其anchor为一个点，这个点只有location的信息，不存在依据iou划分正负样本。
+
+​		1.输入图片转换到heatmap，根据GT box的信息得到中心点坐标(余数时向下取整)；
+
+​		2.依据box的大小来计算高斯圆半径，分为三种情况，预测框包含标注框，标注框包含真实框，标注框真实框重叠但不包含。依据标注框与预测框的两个角点以r为半径的圆，将iou计算公式展开，得到二元一次方程，可得a、b、c，r=(-b+\sqrt(b^2-4ac))/2a得到半径；
+
+​		3.根据中心点与r半径来计算高斯值，半径r的目的在于保证预测points在这个半径内。
+
+​		最终的loss构成为关键点heatmap loss + 中心点偏移offset loss + 长宽尺寸size loss。
+
+​		在推理时判断当前点周围8个点的大小，找到大于周围8个点的点作为points，相当于一种nms。

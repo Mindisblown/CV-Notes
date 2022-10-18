@@ -1,4 +1,4 @@
-**正则化与权重衰减**
+#### 正则化与权重衰减
 
 ​		正则化的目的就是为了让权重衰减到更小的值，从而减少过拟合。因此权重衰减也叫正则化。具体实现就是再损失函数的后面加上一个正则化项
 $$
@@ -16,7 +16,7 @@ $$
 
 ​		权重衰减通过控制w在较小的范围波动，使得决策边界更加平滑(越大的取值范围，越容易造成极端的拟合情况)。
 
-**交叉熵**
+#### 交叉熵
 
 ​		nn.CrossEntropyLoss=nn.functional.cross_entropy()
 
@@ -28,7 +28,7 @@ $$
 
 ​		CE=LogSoftmax+NLLLoss，由定义可知对softmax取log后，softmax后的值位于[0-1]之间，取Log后位于[负无穷-0]之间，因此需要加负号转为正值。
 
-**BCELoss**
+#### BCELoss
 
 ​		nn.BCEloss=nn.functional.binary_cross_entropy()
 
@@ -40,8 +40,15 @@ $$
 
 ​		由定义可知，x_n必须位于[0-1]之间，假设target=[0,1,0]，input=[0.1, 0.8, 0.8]，对于index=0时，loss=-(1-0)log(1-0.1)=-log(0.9)，log(1)=0，loss趋向较小值。index=1，loss=-log(0.8)，同样较小。index=2，loss=-(1-0)log(1-0.8)=-log(0.2)，此时loss较大。
 
-**BCEWithLogitsLoss**
+#### BCEWithLogitsLoss
 
 ​		nn.BCEWithLogitsLoss=nn.functional.binary_cross_entropy_with_logits()
 
 ​		将Sigmoid加入到BCELoss中，BCELoss中的x变为Sigmoid(x)
+
+#### Dropout
+
+​		通过在输入x中加入noise得到x‘，但是不改变其期望E[x']=x
+
+​		在概率p下x'=0，而其他p下为x'=x/(1-p)；多作用于MLP中的隐藏层中(全连接层)，作为一种正则在训练时仅影响权重(将部分权重节点随机置0，可以看成采样部分小网络来做预测)，而推理时直接返回输入。1-p是小于1的，将原有x进行放大，并不会影响方差，相当于加入噪音来扰动
+

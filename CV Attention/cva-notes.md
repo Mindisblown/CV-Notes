@@ -1,3 +1,5 @@
+所有代码源自\# https://github.com/xmu-xiaoma666/External-Attention-pytorch，仅供方便查阅
+
 # Self-Attention
 
 ~~~python
@@ -17,6 +19,10 @@ QKV本质上在做向量之间的内积运算，而内积表征了一个向量�
 
 ​		Transformer的开山之作。QK相乘得到attention map，再与V相乘得到加权后特征，最终经过FC进行特征映射。Scale：除以d_k的原因在于保持QK的方差，QK向量的维度越大，点积往往越大，而softmax在归一化时会被大值主导，分配给较大值更接近于1。假设QK服从均值0方差1的分布，那么在QK点击相乘后方差=q1k1+q2k2+...=d。
 
+**3.Dual Attention Network for Scene Segmentation CVPR19**
+
+​		DANet，Self-attention + self-channel-attention，QKV的生成不再由self-attention中的Linear映射得到。最后直接sum两个attention map。
+
 # Channel Attention
 
 **1.Squeeze and Excitation Network CVPR18**
@@ -26,4 +32,30 @@ QKV本质上在做向量之间的内积运算，而内积表征了一个向量�
 ​		Squeeze：[C, H, W]特征图进行全局平均池化得到[1, 1, C]特征图，这个特征图具有全局感受野。Excitation：使用FC层，对Squeeze之后的结果进行非线性变换。
 
 ​		分类模型一般添加到一个block结束的位置，对一个block的信息进行refine。检测模型一般添加到backbone的stage、block等结束位置。
+
+**2.Selective Kernel Networks CVPR19**
+
+​		SENet加强版本，SKNet主要分为Split、Fuse、Select三个模块。
+
+​		Split：使用不同大小卷积核得到多个feature map；Fuse：将多个feature map进行element-wise得到总的feature map U，对[H, W]维度进行全局平均池化，使用FC层进行降维得到Z；Select：使用FC层计算每个通道的attention weight，经过softmax后与原特征图相乘得到新的特征图，对所有特征图再进行element-wise得到最终的feature map V。
+
+**3.ECA-Net: Efficient Channel Attention for Deep Convolutional Neural Networks CVPR202**
+
+​		SENet的轻量版，使用感受野为K的1D卷积替代SE中的FC层。
+
+# Channel + Spatial Attention
+
+**1.CBAM: Convolutional Block Attention Module ECCV18**
+
+​		Channel attention与SENet相似，在[H, W]维度分别使用了全局平均池化与全局最大值池化，然后add两个特征图(MLP由Conv层替代)。
+
+​		Spatial attention现在channel维度进行最大值与平均池化并进行cat，随后使用7x7卷积核来提取空间的注意力，经过sigmoid归一化后得到最终的feature map。
+
+**2.BAM: Bottleneck Attention Module BMVC18**
+
+​		与CBAM相似，BAM直接add Channel与Spatial维度attention矩阵。
+
+**3.EPSANet: An Efficient Pyramid Split Attention Block on Convolutional Neural Network arXiv21**
+
+​		PSA模块，特征Split成多组子特征图，每组子特征图使用不同大小的卷积核提取新特征，每组新特征经过SENet的channel attention，最后concat所有attention map。不同尺度空间的通道信息来丰富特征空间。
 

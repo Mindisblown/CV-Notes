@@ -23,6 +23,26 @@ QKV本质上在做向量之间的内积运算，而内积表征了一个向量�
 
 ​		DANet，Self-attention + self-channel-attention，QKV的生成不再由self-attention中的Linear映射得到。最后直接sum两个attention map。
 
+**4.ResT: An Efficient Transformer for Visual Recognition arXiv21**
+
+​		针对self-attention计算复杂度高，并且在multi-head中每个head只包含QKV的部分信息。如果QKV维度较小，那么获取的信息就会不连续。因此作者在FC之前引入卷积来降低空间复杂度。
+
+**5.MUSE: Parallel Multi-Scale Attention for Sequence to Sequence Learning arXiv19**
+
+​		Self-attention仅能捕获全局的依赖，当维度较大时，全局捕获的能力也会变弱。在SA的基础上使用多个不同尺寸大小的深度可分离卷积来捕获局部依赖。
+
+**6.An Attention Free Transformer ICLR21**
+
+​		减少计算量，KV相乘求和除K输出out，out与Q相乘(不同SA求点积，直接对应位置相乘)。
+
+**7.VOLO: Vision Outlooker for Visual Recognition arXiv21**
+
+​		获取QKV时都需要进行feature embedding，embedding图片大则计算量大，图片小则信息损失较多。作者引入Outlooker获取更加细粒度的特征表示(flod unflod滑窗操作)。
+
+**8.Vision Permutator: A Permutable MLP-Like Architecture for Visual Recognition arXiv21**
+
+​		Permutator编码空间与通道信息。
+
 # Channel Attention
 
 **1.Squeeze and Excitation Network CVPR18**
@@ -43,6 +63,16 @@ QKV本质上在做向量之间的内积运算，而内积表征了一个向量�
 
 ​		SENet的轻量版，使用感受野为K的1D卷积替代SE中的FC层。
 
+**4.Spatial Group-wise Enhance: Improving Semantic Feature Learning in Convolutional Networks arXiv19**
+
+​		SKNet同一作者，轻量化attention。特征分组后与它的global pooling计算相似性得到attention mask，减均值除方差经过sigmoid后与原始feature map相乘。
+
+# Spatial Attention
+
+**1.A2-Nets: Double Attention Networks NIPS18**
+
+​		1x1卷积获得ABV(类似SA中的QKV)，AB点乘得到全局信息的attention G，GV点乘得到最终结果。
+
 # Channel + Spatial Attention
 
 **1.CBAM: Convolutional Block Attention Module ECCV18**
@@ -58,4 +88,18 @@ QKV本质上在做向量之间的内积运算，而内积表征了一个向量�
 **3.EPSANet: An Efficient Pyramid Split Attention Block on Convolutional Neural Network arXiv21**
 
 ​		PSA模块，特征Split成多组子特征图，每组子特征图使用不同大小的卷积核提取新特征，每组新特征经过SENet的channel attention，最后concat所有attention map。不同尺度空间的通道信息来丰富特征空间。
+
+**4.SA-NET: SHUFFLE ATTENTION FOR DEEP CONVOLUTIONAL NEURAL NETWORKS ICASSP21**
+
+​		主要降低了计算复杂度。输入特征分组，每一组再split成两个分支，每个分支计算分别计算channel与spatial attention，并且两种attention都使用可训练的参数；将两个分支结果concat并且进行channel shuffle(首先对通道进行拆分[group, c/group]，将两个维度转置[c/group, group]，最终reshape[c/group * group])。
+
+# Coordinate Attention
+
+**1.Coordinate Attention for Efficient Mobile Network Design CVPR21**
+
+​		Coordinate Attention基于coordinate information embedding和coordinate attention generation两个步骤来编码通道关系和长距离关系。
+
+​		通道注意力中经常使用GAP对空间信息进行全局编码，但是这样就丢失了位置信息。coordinate information embedding将GAP分解为沿着H和W方向分别池化，获取HW相关的位置信息。
+
+​		coordinate attention generation将两个池化结果concat，经过1x1的conv再将输出按照H和W方向划分成两组，分别经过1x1卷积后再相乘。
 
